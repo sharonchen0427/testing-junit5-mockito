@@ -13,11 +13,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class VisitSDJpaServiceTest {
@@ -28,64 +27,76 @@ class VisitSDJpaServiceTest {
     @InjectMocks
     VisitSDJpaService sdJpaService;
 
+
+    /**
+     * convert to BDD tests:
+     */
+
     @Test
-    void testFindById() {
-        //build a return value
+    void testFindByIdBDD() {
+        //given
         Visit v = new Visit();
-        when(visitRepository.findById(anyLong())).thenReturn(Optional.of(v));//1L
+        given(visitRepository.findById((1L))).willReturn(Optional.of(v));
 
-        //actual call
+        //when
         Visit actualFound = sdJpaService.findById(1L);//1L
-        //(Object expected, Object actual)
-//        assertEquals(v, actualFound);
-        verify(visitRepository).findById(anyLong());
 
+        //then
         assertThat(actualFound).isNotNull();
+        then(visitRepository).should().findById(anyLong());//called once
     }
 
     @Test
-    void testFindAll() {
-        //build a return value
+    void testFindAllBDD() {
+        //given
         Set<Visit> visits = new HashSet<>();
         Visit v = new Visit();
         visits.add(v);
+        given(visitRepository.findAll()).willReturn(visits);
 
-        //actual call
-        when(visitRepository.findAll()).thenReturn(visits);
-
+        //when
         Set<Visit> actualFoundVisits = sdJpaService.findAll();
-        //(Object expected, Object actual)
-        //assertEquals(visits, actualFound);
+
+        //then
+        then(visitRepository).should().findAll();
         assertThat(actualFoundVisits).hasSize(1);//assertJ
-        verify(visitRepository).findAll();//be called once//verify(visitRepository, times(1)).findAll();
     }
 
     @Test
-    void testSave() {
+    void testSaveBDD() {
+        //given
         Visit v = new Visit();
+        given(visitRepository.save(any(Visit.class))).willReturn(v);
+//        when(visitRepository.save(any(Visit.class))).thenReturn(v);
 
-        when(visitRepository.save(any(Visit.class))).thenReturn(v);
+        //when
+        Visit actualSavedObj = sdJpaService.save(new Visit());
 
-        //actual call
-        Visit actualSavedObj = sdJpaService.save(new Visit()); //who?
-
-        //(Object expected, Object actual)
-//        assertEquals(v, actualSavedObj);
-        verify(visitRepository).save(any(Visit.class));
-
-        //assertj
+        //then
+        then(visitRepository).should().save(any(Visit.class));
+        //        verify(visitRepository).save(any(Visit.class));
         assertThat(actualSavedObj).isNotNull();
     }
 
     @Test
-    void testDelete() {
-        sdJpaService.delete(new Visit());
-        verify(visitRepository).delete(any(Visit.class));//be called once
+    void testDeleteBDD() {
+        //given
+        Visit v = new Visit();
+
+        //when
+        sdJpaService.delete(v);
+
+        //then
+//        verify(visitRepository).delete(any(Visit.class));//be called once
+        then(visitRepository).should().delete(any(Visit.class));
     }
 
     @Test
-    void testDeleteById() {
+    void testDeleteByIdBDD() {
+        //when
         sdJpaService.deleteById(1L);
-        verify(visitRepository).deleteById(anyLong());//be called once
+        //then
+//        verify(visitRepository).deleteById(anyLong());//be called once
+        then(visitRepository).should().deleteById(anyLong());
     }
 }
