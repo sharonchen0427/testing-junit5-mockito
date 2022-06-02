@@ -78,6 +78,49 @@ class SpecialitySDJpaServiceTest {
         verify(specialtyRepository).delete(any(Speciality.class));
     }
 
+    /**
+     * BDD tests:
+     */
+    @Test
+    void testDeleteByIdBDD() {
+        //given-none
+        //when
+        specialitySDJpaService.deleteById(1L);
+        specialitySDJpaService.deleteById(1L);
+        //then
+        then(specialtyRepository).should(times(2)).deleteById(anyLong());
+    }
+
+    @Test
+    void testAtLeastDeleteByIdBDD() {
+        specialitySDJpaService.deleteById(1L);
+        specialitySDJpaService.deleteById(1L);
+        then(specialtyRepository).should(atLeast(1)).deleteById(1L);
+    }
+
+    @Test
+    void testFindByIdReturnSpecialtyBDD() {
+        //given
+        Speciality s = new Speciality();
+        when(specialtyRepository.findById(anyLong())).thenReturn(Optional.of(s)); //deeper call
+
+        //when
+        Speciality byId = specialitySDJpaService.findById(1L);
+
+        //then
+        then(specialtyRepository).should().findById(anyLong());
+    }
+
+    @Test
+    void tesDeleteByObjectReturnVoidBDD() {
+        //given
+        Speciality s = new Speciality();
+        //when
+        specialitySDJpaService.delete(s);
+        //then
+        then(specialtyRepository).should().delete(any(Speciality.class));
+    }
+
     //then 是 BDDMockito 的 API，比 verify 更加语义化
     @Test
     void testFindByIdBDD() {
