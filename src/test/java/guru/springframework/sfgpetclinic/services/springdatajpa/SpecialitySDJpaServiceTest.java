@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,13 +53,6 @@ class SpecialitySDJpaServiceTest {
     }
 
     @Test
-    void testDelete() {
-        specialitySDJpaService.delete(new Speciality());
-        verify(specialtyRepository, times(1)).delete(new Speciality());
-
-    }
-
-    @Test
     void testFindByIdReturnSpecialty() {
         //build a return value
         Speciality s = new Speciality();
@@ -71,6 +65,13 @@ class SpecialitySDJpaServiceTest {
 //        assertThat(byId).isNotNull(); //assertJ
         assertEquals(byId, s);
 
-        verify(specialtyRepository).findById(1L);
+        verify(specialtyRepository).findById(anyLong());
+    }
+
+    @Test
+    void tesDeleteByObjectReturnVoid() {
+        Speciality s = new Speciality();
+        specialitySDJpaService.delete(s);
+        verify(specialtyRepository).delete(any(Speciality.class));
     }
 }
