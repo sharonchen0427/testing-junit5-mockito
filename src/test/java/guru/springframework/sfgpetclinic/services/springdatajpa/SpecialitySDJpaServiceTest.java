@@ -102,13 +102,15 @@ class SpecialitySDJpaServiceTest {
     void testFindByIdReturnSpecialtyBDD() {
         //given
         Speciality s = new Speciality();
-        when(specialtyRepository.findById(anyLong())).thenReturn(Optional.of(s)); //deeper call
+        given(specialtyRepository.findById(anyLong())).willReturn(Optional.of(s));
 
         //when
         Speciality byId = specialitySDJpaService.findById(1L);
 
         //then
-        then(specialtyRepository).should().findById(anyLong());
+        assertThat(byId).isNotNull();
+        then(specialtyRepository).should().findById(anyLong());//verify/then: using matchers
+        then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
 
     @Test
