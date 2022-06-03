@@ -11,8 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -139,4 +138,22 @@ class SpecialitySDJpaServiceTest {
 //        then(specialtyRepository).should(times(1)).findById(anyLong());
         then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
+
+    @Test
+    void testDeleteThrow(){
+        doThrow(new RuntimeException()).when(specialtyRepository).delete(any());
+
+        assertThrows(RuntimeException.class, ()->specialtyRepository.delete(new Speciality()));
+        verify(specialtyRepository).delete(any());
+    }
+
+    @Test
+    void testFindByIdThrow(){
+        given(specialtyRepository.findById(1L)).willThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, ()->specialtyRepository.findById(1L));
+//
+        then(specialtyRepository).should().findById(any());
+    }
+
 }
