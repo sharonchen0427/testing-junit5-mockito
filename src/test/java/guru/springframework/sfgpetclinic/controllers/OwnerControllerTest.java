@@ -6,6 +6,8 @@ import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -74,4 +77,21 @@ class OwnerControllerTest {
 
         assertEquals("redirect:/owners/1", viewName);
     }
+
+    //捕获参数值以进行进一步的声明
+    @Test
+    void processFindFormWildCard() { //bdd mockito
+        //given
+        Owner owner=new Owner(2L,"Joe","Buck");
+        List<Owner> owners=new ArrayList<>();
+        //ArgumentCaptor
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        given(ownerService.findAllByLastNameLike(captor.capture())).willReturn(owners);
+        //when
+        String res = ownerController.processFindForm(owner, bindingResult, null);
+        //then
+        assertThat("%Buck%").isEqualToIgnoringCase(captor.getValue());
+    }
+
+
 }
