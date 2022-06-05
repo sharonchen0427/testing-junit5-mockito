@@ -156,4 +156,24 @@ class SpecialitySDJpaServiceTest {
         then(specialtyRepository).should().findById(any());
     }
 
+    @Test
+    void testJava8ArgLambda_SaveSuccessfully() {
+         //given
+        final String MATCH_ME = "MATCH_ME";
+        Speciality speciality = new Speciality();
+        speciality.setDescription(MATCH_ME);
+
+        Speciality savedSpecialty = new Speciality();
+        savedSpecialty.setId(1L);
+        //as long as regex return true,
+        //return savedSpecialty
+        given(specialtyRepository.save(argThat(arg -> arg.getDescription().equals(MATCH_ME))))
+                .willReturn(savedSpecialty);
+
+        //when
+        Speciality returnSpecialty = specialitySDJpaService.save(speciality);
+
+        //then
+        assertThat(returnSpecialty.getId()).isEqualTo(1L);
+    }
 }
