@@ -93,5 +93,19 @@ class OwnerControllerTest {
         assertThat("%Buck%").isEqualToIgnoringCase(captor.getValue());
     }
 
+    @Captor
+    ArgumentCaptor<String> captor;
 
+    @Test
+    void processFindFormWildCard_Annotation() { //bdd mockito
+        //given
+        Owner owner=new Owner(2L,"Joe","Buck");
+        List<Owner> owners=new ArrayList<>();
+        //ArgumentCaptor
+        given(ownerService.findAllByLastNameLike(captor.capture())).willReturn(owners);
+        //when
+        String res = ownerController.processFindForm(owner, bindingResult, null);
+        //then
+        assertThat("%Buck%").isEqualToIgnoringCase(captor.getValue());
+    }
 }
