@@ -7,10 +7,7 @@ import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -160,6 +157,28 @@ class OwnerControllerTest {
         //then                                            //setup captor when willAnswer()
         assertThat("%Findme%").isEqualToIgnoringCase(captor.getValue());
         assertThat("owners/ownersList").isEqualToIgnoringCase(view);
+    }
+
+    @Mock
+    Model model;
+
+    @Test
+    void processFindForm_returnNOwners_InOrder() { //bdd mockito
+        Owner owner=new Owner(1L,"Joe","Findme");
+        //when to use mock?when any?
+        String view = ownerController.processFindForm(owner, bindingResult, model);
+
+        //verify 2 services->methods
+        InOrder inOrder = inOrder(model, ownerService);
+        //then                                            //setup captor when willAnswer()
+
+        assertThat("%Findme%").isEqualToIgnoringCase(captor.getValue());
+        assertThat("owners/ownersList").isEqualToIgnoringCase(view);
+
+        // define the order:
+        //verify order matters
+        inOrder.verify(ownerService).findAllByLastNameLike(anyString());
+        inOrder.verify(model).addAttribute(anyString(), anyList());
     }
 
 }
