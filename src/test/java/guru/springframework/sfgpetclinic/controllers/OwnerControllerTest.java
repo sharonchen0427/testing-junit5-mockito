@@ -1,6 +1,7 @@
 package guru.springframework.sfgpetclinic.controllers;
 
 import guru.springframework.sfgpetclinic.fauxspring.BindingResult;
+import guru.springframework.sfgpetclinic.fauxspring.Model;
 import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
@@ -108,4 +108,58 @@ class OwnerControllerTest {
         //then
         assertThat("%Buck%").isEqualToIgnoringCase(captor.getValue());
     }
+
+    @BeforeEach
+    @Test
+    void setUpGivenWillAnswers_insteadOfThreeGivens() {
+        //invocation.getArgument(0)
+        given(ownerService.findAllByLastNameLike(captor.capture())).willAnswer(
+                invocation -> {
+                    List<Owner> owners = new ArrayList<>();
+                    String lastname = invocation.getArgument(0); //get lastname
+                    if (lastname.equals("%Buck%")) {
+                        owners.add(new Owner(2L, "joe", "buck"));
+                        return owners;
+                    } else if (lastname.equals("%Notfindme%")) {
+                        return owners;
+                    } else if (lastname.equals("%Findme%")) {
+                        owners.add(new Owner(1L, "one", "one"));
+                        owners.add(new Owner(2L, "joe", "buck"));
+                        return owners;
+                    }
+                    throw new RuntimeException("invalid argument");
+                }
+        );
+    }
+
+    @Test
+    void processFindForm_returnNoOwner() {
+        Owner owner=new Owner(1L,"Joe","Notfindme");
+        String view = ownerController.processFindForm(owner, bindingResult, null);
+        //then                                               //setup captor when willAnswer()
+        assertThat("%Notfindme%").isEqualToIgnoringCase(captor.getValue());
+        assertEquals("owners/findOwners", view);
+    }
+
+    @Test
+    void processFindForm_returnOneOwner() { //bdd mockito
+        //given
+        Owner owner=new Owner(2L,"Joe","Buck");
+        //when
+        String view = ownerController.processFindForm(owner, bindingResult, null);
+        //then                                         //setup captor when willAnswer()
+        assertThat("%Buck%").isEqualToIgnoringCase(captor.getValue());
+        assertEquals("redirect:/owners/2", view);
+    }
+
+    @Test
+    void processFindForm_returnNOwners() { //bdd mockito
+        Owner owner=new Owner(1L,"Joe","Findme");
+                                                                            //when to use mock?when any?
+        String view = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        //then                                            //setup captor when willAnswer()
+        assertThat("%Findme%").isEqualToIgnoringCase(captor.getValue());
+        assertThat("owners/ownersList").isEqualToIgnoringCase(view);
+    }
+
 }
