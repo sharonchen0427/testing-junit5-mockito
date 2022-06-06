@@ -178,7 +178,9 @@ class OwnerControllerTest {
         // define the order:
         //verify order matters
         inOrder.verify(ownerService).findAllByLastNameLike(anyString());
-        inOrder.verify(model).addAttribute(anyString(), anyList());
+        inOrder.verify(model, times(1)).addAttribute(anyString(), anyList());
+
+        verifyNoMoreInteractions(model);
     }
 
 }
